@@ -694,13 +694,17 @@ impl Layers {
 
         // Generate the Layers data from the given tech proto:
         for layer_pb in &library_pb.layers {
+            let index = match layer_pb.index {
+                Some(ref i) => i,
+                None => continue
+            };
             let layer = layers_by_number
-                .entry(layer_pb.index)
-                .or_insert(Layer::from_num(layer_pb.index as i16));
+                .entry(index.major)
+                .or_insert(Layer::from_num(index.major as i16));
 
             layer.name = Some(layer_pb.name.clone());
 
-            let sub_index = layer_pb.sub_index as i16;
+            let sub_index = index.minor as i16;
             let layer_purpose = match &layer_pb.purpose {
                 Some(purpose) => Layers::proto_to_internal_layer_purpose(sub_index, &purpose.r#type()),
                 None => LayerPurpose::Other(sub_index),
